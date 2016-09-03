@@ -54,4 +54,4 @@ echo. >>%svn_log_file%
 echo. >>%svn_log_file%
 echo. >>%svn_log_file%
 echo. >>%svn_log_file%
-echo. >>%svn_log_file%@echo off
+echo. >>%svn_log_file%
