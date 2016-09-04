@@ -1,0 +1,55 @@
+##commit##used svn commit to server
+##commit##created by michael
+##commit##Revision 0.1
+
+$svn_log_file="d:\svn_log.txt"
+$svn_directory="d:\test"
+$svn_del_file="d:\svn_del.txt"
+$svn_add_file="d:\svn_add.txt"
+$cur_op_time=get-date
+
+write-output "============================================================">>$svn_log_file
+write-output "******START at: $cur_op_time ****** ">>$svn_log_file
+write-host "`n" >>$svn_log_file
+svn status $svn_directory >>$svn_log_file
+
+##commit##translate flag to human readable
+sed -i "s/^!/Erase/g" $svn_log_file
+sed -i "s/^D/Erase/g" $svn_log_file
+sed -i "s/^?/New/g" $svn_log_file
+sed -i "s/^A/New/g" $svn_log_file
+del sed*
+
+svn cleanup $svn_directory
+
+##commit###truncate full-path-name to process
+svn status $svn_directory | grep "^!" |sed -e "s/^![[:space:]]\+//g" >$svn_del_file
+svn status $svn_directory | grep "^D" |sed -e "s/^D[[:space:]]\+//g" >>$svn_del_file
+svn status $svn_directory | grep "^?" |sed -e "s/^?[[:space:]]\+//g" >$svn_add_file
+svn status $svn_directory | grep "^A" |sed -e "s/^A[[:space:]]\+//g" >>$svn_add_file
+
+##commit### add single-quto ' to parameters
+sed -i 's/^/\"/g' $svn_add_file
+sed -i 's/$/\"/g' $svn_add_file
+type $svn_add_file | xargs svn add 2>&1 >>$svn_log_file
+svn add $svn_directory --force
+sed -i 's/^/\"/g'$svn_del_file
+sed -i 's/$/\"/g'$svn_del_file
+svn status $svn_directory | ? { $_ -match '^!\s+(.*)' } | % { svn rm $Matches[1] }
+type $svn_del_file | xargs svn rm 2>&1 >>$svn_log_file
+svn ci $svn_directory -m "some msg" 2>&1 >>$svn_log_file
+
+del sed*
+del $svn_add_file
+del $svn_del_file
+
+set cur_op_time=get-date
+write-host "`n" >>$svn_log_file
+write-output "******FINISH at: $cur_op_time******" >>$svn_log_file
+write-output "============================================================" >>$svn_log_file
+write-host "`n" >>$svn_log_file
+write-host "`n" >>$svn_log_file
+write-host "`n" >>$svn_log_file
+write-host "`n" >>$svn_log_file
+write-host "`n" >>$svn_log_file
+write-host "`n" >>$svn_log_file
