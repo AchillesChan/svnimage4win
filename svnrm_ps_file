@@ -1,0 +1,2 @@
+svn status d:\test $svn_directory | ? { $_ -match '^!\s+(.*)' } | % { svn rm $Matches[1] }
+svn status d:\test $svn_directory | ? { $_ -match '^D\s+(.*)' } | % { svn rm $Matches[1] }
