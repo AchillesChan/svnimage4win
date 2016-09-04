@@ -7,11 +7,12 @@ set svn_log_file="d:\svn_log.txt"
 set svn_directory="d:\test"
 set svn_del_file="d:\svn_del.txt"
 set svn_add_file="d:\svn_add.txt"
-set cur_op_time=%date:~0,4%%date:~5,2%%date:~8,2%--%time%
+set svnrm_ps_file="d:\svnrm.ps1"
+set start_op_time=%date:~0,4%%date:~5,2%%date:~8,2%--%time%
 %svn_work_driver%
 
 echo ============================================================ >>%svn_log_file%
-echo ******START at: %cur_op_time% ****** >>%svn_log_file%
+echo ******START at: %start_op_time% ****** >>%svn_log_file%
 echo. >>%svn_log_file%
 svn status %svn_directory% >>%svn_log_file%
 
@@ -30,7 +31,7 @@ svn status %svn_directory% | grep "^D" |sed -e "s/^D[[:space:]]\+//g" >>%svn_del
 svn status %svn_directory% | grep "^?" |sed -e "s/^?[[:space:]]\+//g" >%svn_add_file%
 svn status %svn_directory% | grep "^A" |sed -e "s/^A[[:space:]]\+//g" >>%svn_add_file%
 
-REM ------ # add double-quto ' to parameters
+REM ------ # add single-quto ' to parameters
 sed -i "s/^/\"/g" %svn_add_file%
 sed -i "s/$/\"/g" %svn_add_file%
 
@@ -38,16 +39,19 @@ type %svn_add_file% | xargs svn add 1>>%svn_log_file% 2>&1
 svn add %svn_directory% --force
 sed -i "s/^/\"/g" %svn_del_file%
 sed -i "s/$/\"/g" %svn_del_file%
-type %svn_del_file% | xargs svn del 1>>%svn_log_file% 2>&1
-svn ci %svn_directory% -m "some msg" 1>>%svn_log_file% 2>&1
+svn update %svn_directory%
+Powershell.exe -executionpolicy remotesigned -File %svnrm_ps_file%
+type %svn_del_file% | xargs svn rm 1>>%svn_log_file% 2>&1
+
+set stop_op_time=%date:~0,4%%date:~5,2%%date:~8,2%--%time%
+svn ci %svn_directory% -m "%start_op_time% to %stop_op_time%" 1>>%svn_log_file% 2>&1
 
 del sed*
-del %svn_del_file%
-del %svn_add_file%
+REM del %svn_add_file%
+REM del %svn_del_file%
 
-set cur_op_time=%date:~0,4%%date:~5,2%%date:~8,2%--%time%
 echo. >>%svn_log_file%
-echo ******FINISH at: %cur_op_time%****** >>%svn_log_file%
+echo ******FINISH at: %stop_op_time%****** >>%svn_log_file%
 echo ============================================================ >>%svn_log_file%
 echo. >>%svn_log_file%
 echo. >>%svn_log_file%
